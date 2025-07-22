@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: phpapp
-          image: registry.gitlab.com/mexxy-lab/phpproject:3
+          image: registry.gitlab.com/mexxy-lab/phpproject:5
           imagePullPolicy: Always
           resources:
             limits:
