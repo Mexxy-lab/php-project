@@ -31,17 +31,17 @@ spec:
       imagePullSecrets:
         - name: gitlab-registry-secret
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: phpapp-service
-spec:
-  selector:
-    app: phpapp
-  ports:
-  - protocol: TCP
-    port: 82
-    targetPort: 8000
-    nodePort: 30480
-  type: LoadBalancer
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: phpapp-service
+# spec:
+#   selector:
+#     app: phpapp
+#   ports:
+#   - protocol: TCP
+#     port: 82
+#     targetPort: 8000
+#     nodePort: 30480
+#   type: LoadBalancer
