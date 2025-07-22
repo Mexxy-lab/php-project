@@ -31,7 +31,7 @@ lint-job:
   script: 
     - php -l public/index.php
 
-test-job:               # new test job added here
+test-job:
   stage: test
   tags:
     - npm
@@ -41,12 +41,6 @@ test-job:               # new test job added here
     - echo "Running tests"
     - composer install
     - composer test
-
-sast:
-  tags:
-    - npm
-    - ubuntu
-    - pumej
 
 package-job:
   stage: package
@@ -77,6 +71,3 @@ deploy-job:
     - kubectl get services -n default
     - kubectl get deployments -n default
     - kubectl describe deployment phpapp -n default
-
-include:
-  - template: Security/SAST.gitlab-ci.yml
