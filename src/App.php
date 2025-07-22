@@ -1,5 +1,6 @@
 <?php
 // src/App.php
+namespace App;
 
 class App {
     public function getMessage() {

@@ -8,7 +8,7 @@ stages:
   - deploy
 
 variables:
-  IMAGE_NAME: registry.gitlab.com/mexxy-lab/php-project
+  IMAGE_NAME: registry.gitlab.com/mexxy-lab/phpproject
 
 before_script:
   - echo "Running job in stage $CI_JOB_STAGE"
@@ -31,14 +31,22 @@ lint-job:
   script: 
     - php -l public/index.php
 
-sast:   
-  stage: test 
+test-job:               # new test job added here
+  stage: test
   tags:
     - npm
     - ubuntu
-    - pumej   
-include:
-  - template: Jobs/SAST.gitlab-ci.yml
+    - pumej
+  script:
+    - echo "Running tests"
+    - composer install
+    - composer test
+
+sast:
+  tags:
+    - npm
+    - ubuntu
+    - pumej
 
 package-job:
   stage: package
@@ -68,4 +76,7 @@ deploy-job:
     - kubectl get pods -n default
     - kubectl get services -n default
     - kubectl get deployments -n default
-    - kubectl describe deployment nodejsapp -n default
+    - kubectl describe deployment phpapp -n default
+
+include:
+  - template: Jobs/SAST.gitlab-ci.yml

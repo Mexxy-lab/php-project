@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: phpapp
-          image: registry.gitlab.com/mexxy-lab/php-project:1
+          image: registry.gitlab.com/mexxy-lab/phpproject:3
+          imagePullPolicy: Always
           resources:
             limits:
               memory: 128Mi
@@ -34,7 +35,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nodejsapp-service
+  name: phpapp-service
 spec:
   selector:
     app: phpapp
