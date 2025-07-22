@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: phpapp
+  template:
+    metadata:
+      labels:
+        app: phpapp
+    spec:
+      containers:
+        - name: phpapp
+          image: registry.gitlab.com/mexxy-lab/php-project:1
+          resources:
+            limits:
+              memory: 128Mi
+              cpu: 500m
+              ephemeral-storage: "1Gi"
+            requests:
+              memory: 64Mi
+              cpu: 250m
+              ephemeral-storage: "512Mi"
+          ports:
+            - containerPort: 8000
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: gitlab-registry-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejsapp-service
+spec:
+  selector:
+    app: phpapp
+  ports:
+  - protocol: TCP
+    port: 82
+    targetPort: 8000
+    nodePort: 30480
+  type: LoadBalancer

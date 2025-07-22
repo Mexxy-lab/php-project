@@ -1,15 +1,14 @@
-image: node:16
+image: php:8.0
 
 stages:          
   - build
+  - lint
   - test
-  - sonarqube-check
-  - sonarqube-vulnerability-report
   - package
   - deploy
 
 variables:
-  IMAGE_NAME: registry.gitlab.com/mexxy-lab/npmproject
+  IMAGE_NAME: registry.gitlab.com/mexxy-lab/php-project
 
 before_script:
   - echo "Running job in stage $CI_JOB_STAGE"
@@ -21,68 +20,25 @@ build-job:
     - ubuntu
     - pumej
   script:
-    - npm install
+    - composer install
 
-test-job:   
+lint-job:
+  stage: lint
+  tags:
+    - npm
+    - ubuntu
+    - pumej
+  script: 
+    - php -l public/index.php
+
+sast:   
   stage: test 
   tags:
     - npm
     - ubuntu
     - pumej   
-  script:
-    - npm install
-    - npm test
-
-# sonarqube-analysis:
-#   stage: sonarqube
-#   tags:
-#     - npm
-#     - ubuntu
-#     - pumej
-#   script:
-#     - npm install -g sonar-scanner
-#     - sonar-scanner -Dsonar.projectKey=nodeproject -Dsonar.sources=. -Dsonar.host.url=http://192.168.248.133:9000 -Dsonar.login=$SONAR_TOKEN
-
-sonarqube-check:
-  stage: sonarqube-check
-  tags:
-  - npm
-  - ubuntu
-  - pumej
-  # image: 
-  #   name: sonarsource/sonar-scanner-cli:5.0
-  #   entrypoint: [""]
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
-    GIT_DEPTH: "0"
-  cache:
-    key: "${CI_JOB_NAME}"
-    paths:
-      - .sonar/cache
-  script: 
-    - sonar-scanner -Dsonar.token=$SONAR_TOKEN
-  allow_failure: true
-  only:
-    - main
-
-sonarqube-vulnerability-report:
-  stage: sonarqube-vulnerability-report
-  tags:
-    - npm
-    - ubuntu
-    - pumej
-  script:
-    - 'curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=Mexxy-lab_npmproject_85d0e187-8bd8-4b82-8aec-065fd1c99239&branch=${CI_COMMIT_BRANCH}&pullRequest=${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
-  allow_failure: true
-  only:
-    - main
-    - develop
-  artifacts:
-    expire_in: 1 day
-    reports:
-      sast: gl-sast-sonar-report.json
-  dependencies:
-    - sonarqube-check
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
 
 package-job:
   stage: package

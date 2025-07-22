@@ -19,3 +19,12 @@ composer install                                    | This would install the dep
 php -S localhost:8000 -t public                     | This woould laucnch the development server - [Tue Jul 22 00:36:59 2025] PHP 8.3.6 Development Server (http://localhost:8000) started
 ```
 
+## Create secret for kube cluster deployment to enable cluster access to repository 
+
+```bash
+kubectl create secret docker-registry gitlab-registry-secret \
+  --docker-server=registry.gitlab.com \
+  --docker-username=pumej1985@gmail.com \
+  --docker-password=gitlabToken \
+  --docker-email=pumej1985@gmail.com
+```
