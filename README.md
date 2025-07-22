@@ -16,7 +16,7 @@ composer install                                    | This would install the dep
 ## Run below command to test the application locally. Default php port is 8000. 
 
 ```bash
-php -S localhost:8000 -t public                     | This woould laucnch the development server - [Tue Jul 22 00:36:59 2025] PHP 8.3.6 Development Server (http://localhost:8000) started
+php -S localhost:8000 -t public                     | This woould laucnch the development server - [Tue Jul 22 00:36:59 2025] PHP 8.3.6 Development Server (http://localhost:8000) started]
 ```
 
 ## Create secret for kube cluster deployment to enable cluster access to repository 
