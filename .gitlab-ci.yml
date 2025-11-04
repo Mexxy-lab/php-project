@@ -56,18 +56,18 @@ package-job:
     - docker build -t $IMAGE_NAME:$CI_PIPELINE_IID .
     - docker push $IMAGE_NAME:$CI_PIPELINE_IID
 
-deploy-job:
-  stage: deploy
-  tags:
-    - npm
-    - ubuntu
-    - pumej
-  script:
-    - export KUBECONFIG=$HOME/.kube/config
-    - kubectl config current-context || echo "kubectl context not found"
-    - kubectl apply -f application.yaml
-    - kubectl get nodes 
-    - kubectl get pods -n default
-    - kubectl get services -n default
-    - kubectl get deployments -n default
-    - kubectl describe deployment phpapp -n default
+# deploy-job:
+#   stage: deploy
+#   tags:
+#     - npm
+#     - ubuntu
+#     - pumej
+#   script:
+#     - export KUBECONFIG=$HOME/.kube/config
+#     - kubectl config current-context || echo "kubectl context not found"
+#     - kubectl apply -f application.yaml
+#     - kubectl get nodes 
+#     - kubectl get pods -n default
+#     - kubectl get services -n default
+#     - kubectl get deployments -n default
+#     - kubectl describe deployment phpapp -n default
