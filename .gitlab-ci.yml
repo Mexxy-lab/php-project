@@ -4,6 +4,9 @@ stages:
   - build
   - lint
   - test
+  - sonarqube-fullscan
+  - sonarqube-check
+  - sonarqube-vulnerability-report
   - package
   - deploy
 
@@ -16,37 +19,87 @@ before_script:
 build-job:       
   stage: build
   tags:
-    - npm
+    - yarn
     - ubuntu
-    - pumej
+    - netflix
   script:
     - composer install
 
 lint-job:
   stage: lint
   tags:
-    - npm
+    - yarn
     - ubuntu
-    - pumej
+    - netflix
   script: 
     - php -l public/index.php
 
 test-job:
   stage: test
   tags:
-    - npm
+    - yarn
     - ubuntu
-    - pumej
+    - netflix
   script:
     - echo "Running tests"
     - composer install
     - composer test
 
+sonarqube-analysis:
+  stage: sonarqube-fullscan
+  tags:
+    - yarn
+    - ubuntu
+    - netflix
+  script:
+    - sonar-scanner -Dsonar.projectKey=php-project -Dsonar.sources=. -Dsonar.host.url=http://172.21.153.111:9000 -Dsonar.login=$SONAR_TOKEN
+
+sonarqube-check:
+  stage: sonarqube-check
+  tags:
+    - netflix
+    - ubuntu
+    - yarn
+  # image: 
+  #   name: sonarsource/sonar-scanner-cli:5.0
+  #   entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "/etc/gitlab-runner/.sonar" # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"   # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - /etc/gitlab-runner/.sonar/cache
+  script: 
+    - sonar-scanner -Dsonar.token=$SONAR_TOKEN
+  allow_failure: true
+  only:
+    - main
+
+sonarqube-vulnerability-report:
+  stage: sonarqube-vulnerability-report
+  tags:
+    - netflix
+    - ubuntu
+    - yarn
+  script:
+    - 'curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=php-project&branch=${CI_COMMIT_BRANCH}&pullRequest=${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
+  allow_failure: true
+  only:
+    - main
+    - develop
+  artifacts:
+    expire_in: 1 day
+    reports:
+      sast: gl-sast-sonar-report.json
+  dependencies:
+    - sonarqube-check
+
 package-job:
   stage: package
   image: docker:latest
-  services:
-    - docker:dind
+  # services:
+  #   - docker:dind
   tags:
     - docker
     - ubuntu
@@ -59,9 +112,9 @@ package-job:
 # deploy-job:
 #   stage: deploy
 #   tags:
-#     - npm
+#     - yarn
 #     - ubuntu
-#     - pumej
+#     - netflix
 #   script:
 #     - export KUBECONFIG=$HOME/.kube/config
 #     - kubectl config current-context || echo "kubectl context not found"
