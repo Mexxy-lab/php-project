@@ -62,11 +62,39 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
-## Shared / Managed runner set up for project.
+## Shared / Managed runner set up for project. 
 
 - For shared runner, you do not make use of tags. 
 - For managed runner you have to follow the below steps to configure and set up your runner: 
-- Download and Install the gitlab runner service  
+- Download and Install the gitlab runner service . You can set it up as a service running in the background
+- I have set this up with user as root and home directory specified. You can change to suit yours. 
+
+```bash
+sudo nano /etc/systemd/system/gitlab-runner.service
+
+[Unit]
+Description=GitLab Runner
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/home/gitlab-runner
+
+ExecStart=/usr/local/bin/gitlab-runner run \
+  --config /etc/gitlab-runner/config.toml \
+  --working-directory /home/gitlab-runner \
+  --service gitlab-runner \
+  --syslog
+
+Restart=always
+RestartSec=5s
+Environment="HOME=/home/gitlab-runner"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ```bash
 sudo apt install gitlab-runner                        | Would install the service for Ubuntu OS 
@@ -78,6 +106,8 @@ sudo gitlab-runner list                               | Would list all registere
 sudo gitlab-runner register  --url https://gitlab.com  --token glrt-AcF_zr9bRfdCRyGMAkGV0G86MQpwOjE2cWFmcgp0OjMKdTpneWdpbxg.01.1j0lacon5          | Used to register system mode. Means root user
 gitlab-runner register  --url https://gitlab.com  --token glrt-AcF_zr9bRfdCRyGMAkGV0G86MQpwOjE2cWFmcgp0OjMKdTpneWdpbxg.01.1j0lacon5               | Used to register usermode.
 nohup gitlab-runner run &                             | Used to run the pipeline so it listens on background in usermode. 
+sudo chown -R gitlab-runner:gitlab-runner /etc/gitlab-runner/builds             | Used to change file ownership to new user 
+sudo journalctl -u gitlab-runner -f                   | Command to monitor or tail the gitlab-runner service 
 
 Note: Gitlab runner can be run in two modes, system mode and user mode. Both modes have config files stored in /etc/gitlab-runner/config.toml and /home/pumej/.gitlab-runner/config.toml files. 
 ```
