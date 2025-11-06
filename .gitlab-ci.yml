@@ -23,7 +23,7 @@ build-job:
     - ubuntu
     - netflix
   script:
-    - sudo -u gitlab-runner composer install
+    - composer install --no-interaction --no-ansi --no-scripts --no-progress
 
 lint-job:
   stage: lint
@@ -42,7 +42,7 @@ test-job:
     - netflix
   script:
     - echo "Running tests"
-    - sudo -u gitlab-runner composer install
+    - composer install --no-interaction --no-ansi --no-scripts --no-progress
     - sudo -u gitlab-runner composer test
 
 sonarqube-analysis:
