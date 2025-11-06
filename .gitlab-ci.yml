@@ -43,7 +43,7 @@ test-job:
   script:
     - echo "Running tests"
     - composer install --no-interaction --no-ansi --no-scripts --no-progress
-    - sudo -u gitlab-runner composer test
+    - COMPOSER_ALLOW_SUPERUSER=1 composer test
 
 sonarqube-analysis:
   stage: sonarqube-fullscan
